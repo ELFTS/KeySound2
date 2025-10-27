@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- 修复MC1003和BG1003错误 -->
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <!-- 禁用自动生成程序集属性 -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- 添加应用程序图标 -->
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 升级MaterialDesign库到5.3.0 -->
+    <PackageReference Include="MaterialDesignColors" Version="5.3.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
+    <!-- 添加NAudio库支持MP3格式和音量控制 -->
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <!-- 仅保留一个ApplicationDefinition -->
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+    <Page Include="AboutPage.xaml" />
+    <Page Include="HomePage.xaml" />
+    <Page Include="KeySoundItem.xaml" />
+    <Page Include="MainWindow.xaml" />
+    <Page Include="SettingsPage.xaml" />
+    <Page Include="SoundSettingsPage.xaml" />
+    <Page Include="VirtualKeyboard.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 添加图标文件到项目 -->
+  <ItemGroup>
+    <Resource Include="Resources\app.ico" />
+  </ItemGroup>
+
+  <!-- 添加图片资源 -->
+  <ItemGroup>
+    <Resource Include="Images\logo.png" />
+    <Resource Include="Images\bottom_left.png" />
+    <Resource Include="Images\bottom_right.png" />
+  </ItemGroup>
+
+</Project>

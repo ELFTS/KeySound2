@@ -1,0 +1,10 @@
+{
+  "DefaultSound": "",
+  "KeySounds": {
+    "Q": "Alarm10.wav",
+    "Cancel": "Alarm10.wav",
+    "A": "Alarm10.wav",
+    "Back": "Ring07.wav",
+    "G": "Ring07.wav"
+  }
+}

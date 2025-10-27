@@ -1,0 +1,193 @@
+<Window x:Class="KeySound2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KeySound2"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="KeySound2" 
+        Height="600" 
+        Width="1000"
+        MinHeight="400"
+        MinWidth="800"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        Background="{DynamicResource MaterialDesignPaper}"
+        Icon="Resources/app.ico">
+    
+    <materialDesign:DialogHost Identifier="RootDialog">
+        <Grid Background="{DynamicResource MaterialDesignPaper}">
+            <!-- 主窗口内容 -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 标题栏 -->
+                <Border Grid.Row="0" 
+                        Background="{DynamicResource MaterialDesign.Brush.Primary}" 
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="KeySound2" 
+                                   VerticalAlignment="Center" 
+                                   Margin="20,0,0,0"
+                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                   Foreground="White"/>
+                        
+                        <!-- 窗口控制按钮 -->
+                        <StackPanel Grid.Column="1" 
+                                    Orientation="Horizontal" 
+                                    Margin="0,0,10,0">
+                            <Button x:Name="MinimizeButton" 
+                                    Width="40" 
+                                    Height="40" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Click="MinimizeButton_Click"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center">
+                                <materialDesign:PackIcon Kind="WindowMinimize" 
+                                                       Width="16" 
+                                                       Height="16" 
+                                                       Foreground="White" 
+                                                       HorizontalAlignment="Center" 
+                                                       VerticalAlignment="Center"/>
+                            </Button>
+                            <Button x:Name="MaximizeButton" 
+                                    Width="40" 
+                                    Height="40" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Click="MaximizeButton_Click"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center">
+                                <materialDesign:PackIcon Kind="WindowMaximize" 
+                                                       Width="16" 
+                                                       Height="16" 
+                                                       Foreground="White" 
+                                                       HorizontalAlignment="Center" 
+                                                       VerticalAlignment="Center"/>
+                            </Button>
+                            <Button x:Name="CloseButton" 
+                                    Width="40" 
+                                    Height="40" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Click="CloseButton_Click"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center">
+                                <materialDesign:PackIcon Kind="WindowClose" 
+                                                       Width="16" 
+                                                       Height="16" 
+                                                       Foreground="White" 
+                                                       HorizontalAlignment="Center" 
+                                                       VerticalAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- 主内容区域 -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 侧边栏导航 -->
+                    <Border Grid.Column="0" Background="White">
+                        <StackPanel Margin="10">
+                            
+                            <Button x:Name="MainControlButton"
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    HorizontalContentAlignment="Left"
+                                    Height="40"
+                                    Click="NavigationButton_Click"
+                                    Tag="MainControl">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Home" Margin="0,0,10,0" Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                    <TextBlock Text="主页" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="SoundSettingsButton"
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    HorizontalContentAlignment="Left"
+                                    Height="40"
+                                    Click="NavigationButton_Click"
+                                    Tag="SoundSettings">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Settings" Margin="0,0,10,0" Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                    <TextBlock Text="音效设置" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="ProgramSettingsButton"
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    HorizontalContentAlignment="Left"
+                                    Height="40"
+                                    Click="NavigationButton_Click"
+                                    Tag="ProgramSettings">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Cog" Margin="0,0,10,0" Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                    <TextBlock Text="程序设置" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button x:Name="AboutButton"
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    HorizontalContentAlignment="Left"
+                                    Height="40"
+                                    Click="NavigationButton_Click"
+                                    Tag="About">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Information" Margin="0,0,10,0" Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                    <TextBlock Text="关于" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- 主内容区域 -->
+                    <Grid Grid.Column="1" Margin="10">
+                        <!-- 主页面Frame -->
+                        <Frame x:Name="MainFrame" 
+                               NavigationUIVisibility="Hidden"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+            
+            <!-- 合并的开始/停止按钮，悬浮在左下角 -->
+            <Button x:Name="StartStopButton"
+                    Width="56"
+                    Height="56"
+                    Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Left"
+                    Margin="20,0,0,20"
+                    Click="StartStopButton_Click">
+                <materialDesign:PackIcon x:Name="StartStopIcon" 
+                                       Kind="Play" 
+                                       Width="24" 
+                                       Height="24" />
+            </Button>
+        </Grid>
+    </materialDesign:DialogHost>
+</Window>

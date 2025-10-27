@@ -1,0 +1,179 @@
+<UserControl x:Class="KeySound2.VirtualKeyboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KeySound2"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1100">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 功能键行 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="EscKey" Content="Esc" Style="{StaticResource MaterialDesignRaisedButton}" Width="50" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F1Key" Content="F1" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="15,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F2Key" Content="F2" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F3Key" Content="F3" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F4Key" Content="F4" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,15,0" Click="KeyButton_Click"/>
+                <Button x:Name="F5Key" Content="F5" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F6Key" Content="F6" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F7Key" Content="F7" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F8Key" Content="F8" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,15,0" Click="KeyButton_Click"/>
+                <Button x:Name="F9Key" Content="F9" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F10Key" Content="F10" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F11Key" Content="F11" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="F12Key" Content="F12" Style="{StaticResource MaterialDesignRaisedButton}" Width="40" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+            </StackPanel>
+
+            <!-- 第一行数字键 -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="TildeKey" Content="~ ` " Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num1Key" Content="! 1" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num2Key" Content="@ 2" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num3Key" Content="# 3" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num4Key" Content="$ 4" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num5Key" Content="% 5" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num6Key" Content="^ 6" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num7Key" Content="&amp; 7" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num8Key" Content="* 8" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num9Key" Content="( 9" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="Num0Key" Content=") 0" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="MinusKey" Content="_ -" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="EqualsKey" Content="+ =" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="BackspaceKey" Content="Backspace" Style="{StaticResource MaterialDesignRaisedButton}" Width="85" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+            </StackPanel>
+
+            <!-- 第二行字母键 -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="TabKey" Content="Tab" Style="{StaticResource MaterialDesignRaisedButton}" Width="70" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="QKey" Content="Q" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="WKey" Content="W" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="EKey" Content="E" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="RKey" Content="R" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="TKey" Content="T" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="YKey" Content="Y" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="UKey" Content="U" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="IKey" Content="I" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="OKey" Content="O" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="PKey" Content="P" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="OpenBracketKey" Content="&#x005B;" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="CloseBracketKey" Content="&#x005D;" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="BackslashKey" Content="| \" Style="{StaticResource MaterialDesignRaisedButton}" Width="60" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+            </StackPanel>
+
+            <!-- 第三行字母键 -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="CapsLockKey" Content="Caps Lock" Style="{StaticResource MaterialDesignRaisedButton}" Width="85" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="AKey" Content="A" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="SKey" Content="S" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="DKey" Content="D" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="FKey" Content="F" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="GKey" Content="G" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="HKey" Content="H" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="JKey" Content="J" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="KKey" Content="K" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="LKey" Content="L" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="SemicolonKey" Content=": ;" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="QuoteKey" Content="&quot; '" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="EnterKey" Content="Enter" Style="{StaticResource MaterialDesignRaisedButton}" Width="90" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+            </StackPanel>
+
+            <!-- 第四行字母键 -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="ShiftKey" Content="Shift" Style="{StaticResource MaterialDesignRaisedButton}" Width="110" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="ZKey" Content="Z" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="XKey" Content="X" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="CKey" Content="C" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="VKey" Content="V" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="BKey" Content="B" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="NKey" Content="N" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="MKey" Content="M" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="CommaKey" Content="&lt; ," Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="PeriodKey" Content="&gt; ." Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="SlashKey" Content="? /" Style="{StaticResource MaterialDesignRaisedButton}" Width="45" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="RightShiftKey" Content="Shift" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+            </StackPanel>
+
+            <!-- 控制键行和方向键行 -->
+            <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button x:Name="CtrlKey" Content="Ctrl" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="WinKey" Content="Win" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="AltKey" Content="Alt" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="SpaceKey" Content="Space" Style="{StaticResource MaterialDesignRaisedButton}" Width="280" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="RightAltKey" Content="Alt" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="RightWinKey" Content="Win" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="MenuKey" Content="Menu" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                <Button x:Name="RightCtrlKey" Content="Ctrl" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                
+                <!-- 方向键区域 -->
+                <StackPanel Margin="15,5,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
+                        <Button x:Name="UpKey" Content="↑" Style="{StaticResource MaterialDesignRaisedButton}" Width="35" Height="35" Click="KeyButton_Click"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="LeftKey" Content="←" Style="{StaticResource MaterialDesignRaisedButton}" Width="35" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="DownKey" Content="↓" Style="{StaticResource MaterialDesignRaisedButton}" Width="35" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="RightKey" Content="→" Style="{StaticResource MaterialDesignRaisedButton}" Width="35" Height="35" Click="KeyButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 小键盘区域 -->
+            <StackPanel Grid.Row="6" Orientation="Horizontal" Margin="0,15,0,5">
+                <!-- 小键盘标题 -->
+                <TextBlock Text="小键盘" VerticalAlignment="Center" Margin="0,0,15,0" Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                
+                <!-- NumLock和除号 -->
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="NumLockKey" Content="NumLk" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadDivideKey" Content="/" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadMultiplyKey" Content="*" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadMinusKey" Content="-" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Click="KeyButton_Click"/>
+                    </StackPanel>
+                    
+                    <!-- 小键盘数字区第一行 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button x:Name="Numpad7Key" Content="7" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad8Key" Content="8" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad9Key" Content="9" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadPlusKey" Content="+" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="75" Click="KeyButton_Click"/>
+                    </StackPanel>
+                    
+                    <!-- 小键盘数字区第二行 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button x:Name="Numpad4Key" Content="4" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad5Key" Content="5" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad6Key" Content="6" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                    </StackPanel>
+                    
+                    <!-- 小键盘数字区第三行 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button x:Name="Numpad1Key" Content="1" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad2Key" Content="2" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="Numpad3Key" Content="3" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadEnterKey" Content="Enter" Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="75" Click="KeyButton_Click"/>
+                    </StackPanel>
+                    
+                    <!-- 小键盘数字区第四行 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button x:Name="Numpad0Key" Content="0" Style="{StaticResource MaterialDesignRaisedButton}" Width="115" Height="35" Margin="0,0,5,0" Click="KeyButton_Click"/>
+                        <Button x:Name="NumpadDotKey" Content="." Style="{StaticResource MaterialDesignRaisedButton}" Width="55" Height="35" Click="KeyButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

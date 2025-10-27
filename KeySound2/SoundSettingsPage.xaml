@@ -1,0 +1,146 @@
+<Page x:Class="KeySound2.SoundSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KeySound2"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="SoundSettingsPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                <TextBlock Text="音效设置" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,0,10"/>
+            </StackPanel>
+
+            <!-- 声音设置（包含方案和按键音效） -->
+            <GroupBox Grid.Row="1" Header="声音设置" Style="{StaticResource MaterialDesignGroupBox}" Margin="0,0,0,10">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 左侧：声音方案设置 -->
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="声音方案" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <Button x:Name="CreateSchemeButton" Content="创建方案" 
+                                    Style="{StaticResource MaterialDesignRaisedButton}" 
+                                    Margin="0,0,10,0" Padding="5"/>
+                            <Button x:Name="SaveSchemeButton" Content="保存方案" 
+                                    Style="{StaticResource MaterialDesignRaisedButton}" Padding="5"/>
+                        </StackPanel>
+                        
+                        <!-- 方案选择和管理 -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="选择方案:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="SchemeSelectionComboBox" 
+                                      Width="150" 
+                                      VerticalAlignment="Center"
+                                      DisplayMemberPath="Name"/>
+                            <Button x:Name="RefreshSchemesButton" Content="刷新" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Margin="10,0,0,0" Padding="5"/>
+                        </StackPanel>
+                        
+                        <!-- 方案管理按钮 -->
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                            <Button x:Name="RenameSchemeButton" Content="重命名方案" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Margin="0,0,10,0" Padding="5"/>
+                            <Button x:Name="DeleteSchemeButton" Content="删除方案" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Margin="0,0,10,0" Padding="5"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <!-- 右侧：按键音效设置 -->
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                        <TextBlock Text="按键音效" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="选择按键:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="KeySelectionComboBox" 
+                                      Width="120" 
+                                      VerticalAlignment="Center"/>
+                            <Button x:Name="SelectKeyWithVirtualKeyboardButton" 
+                                    Content="使用虚拟键盘选择" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Margin="10,0,0,0" Padding="5"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="当前按键:" Margin="0,0,0,2"/>
+                        <TextBlock x:Name="SelectedKeyText" 
+                                   Text="未选择" 
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                   Margin="0,0,0,5"/>
+                        
+                        <TextBlock Text="当前音效:" Margin="0,0,0,2"/>
+                        <TextBlock x:Name="CurrentSoundPathText" 
+                                   Text="未设置（使用默认音效）" 
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                   Margin="0,0,0,5"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            
+            <!-- 音效文件管理 -->
+            <GroupBox Grid.Row="2" Header="音效文件管理" Style="{StaticResource MaterialDesignGroupBox}" Margin="0,0,0,10">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 音效文件操作按钮 -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button x:Name="ImportSoundFileButton" Content="导入音效文件" 
+                                Style="{StaticResource MaterialDesignRaisedButton}" 
+                                Margin="0,0,10,0" Padding="5"/>
+                        <Button x:Name="DeleteSoundFileButton" Content="删除音效文件" 
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="0,0,10,0" Padding="5"/>
+                        <Button x:Name="RenameSoundFileButton" Content="重命名音效文件" 
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="0,0,10,0" Padding="5"/>
+                        <Button x:Name="RefreshSoundFilesButton" Content="刷新" 
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Padding="5"/>
+                        <Button x:Name="SetKeySoundButton" Content="设置为按键音效" 
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Margin="10,0,0,0" Padding="5"/>
+                    </StackPanel>
+                    
+                    <!-- 音效文件列表 -->
+                    <DataGrid Grid.Row="1" x:Name="SoundFilesDataGrid" 
+                              AutoGenerateColumns="False" 
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              Margin="0,0,0,10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="大小" Binding="{Binding Size}" Width="100"/>
+                            <DataGridTextColumn Header="修改时间" Binding="{Binding ModifiedDate}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </GroupBox>
+            
+            <!-- 虚拟键盘 -->
+            <GroupBox Grid.Row="3" Header="虚拟键盘" Style="{StaticResource MaterialDesignGroupBox}">
+                <local:VirtualKeyboard x:Name="VirtualKeyboardControl" Margin="5"/>
+            </GroupBox>
+        </Grid>
+    </ScrollViewer>
+</Page>

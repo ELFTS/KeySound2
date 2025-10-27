@@ -1,0 +1,57 @@
+<UserControl x:Class="KeySound2.KeySoundItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" 
+                       Text="{Binding KeyName}" 
+                       VerticalAlignment="Center" 
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+            
+            <TextBox Grid.Column="1" 
+                     Text="{Binding SoundFile}" 
+                     VerticalAlignment="Center" 
+                     Margin="10,0" 
+                     IsReadOnly="True"/>
+            
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Content="选择" 
+                        Style="{StaticResource MaterialDesignFlatButton}" 
+                        Click="SelectSound_Click" 
+                        Margin="0,0,5,0"/>
+                <Button Content="清除" 
+                        Style="{StaticResource MaterialDesignFlatButton}" 
+                        Click="ClearSound_Click"/>
+            </StackPanel>
+        </Grid>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="105,5,0,0">
+            <TextBlock Text="音量:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Slider x:Name="VolumeSlider"
+                    Width="150"
+                    Minimum="0"
+                    Maximum="100"
+                    Value="{Binding Volume}"
+                    Style="{StaticResource MaterialDesignSlider}"/>
+            <TextBlock Text="{Binding Volume, StringFormat={}{0:0}%}" 
+                       VerticalAlignment="Center" 
+                       Margin="10,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
