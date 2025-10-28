@@ -41,60 +41,6 @@
                            HorizontalAlignment="Center"
                            Margin="0,0,0,20"/>
                 
-                <TextBlock Text="开发信息"
-                           Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"/>
-                
-                <TextBlock Text="本软件由万物永存技术工作室开发，使用 WPF 和 MaterialDesign 技术构建。"
-                           Style="{StaticResource MaterialDesignBody1TextBlock}"
-                           TextWrapping="Wrap"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,20"/>
-                
-                <TextBlock Text="开源许可"
-                           Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"/>
-                
-                <TextBlock Text="本软件使用了以下开源项目："
-                           Style="{StaticResource MaterialDesignBody1TextBlock}"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"/>
-                
-                <BulletDecorator HorizontalAlignment="Center" Margin="0,0,0,5">
-                    <BulletDecorator.Bullet>
-                        <Ellipse Width="6" Height="6" Fill="{DynamicResource MaterialDesign.Brush.Primary}" Margin="0,6,10,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock>
-                        <Hyperlink NavigateUri="https://github.com/MaterialDesignWPF" RequestNavigate="Hyperlink_RequestNavigate">
-                            MaterialDesignThemes
-                        </Hyperlink>
-                    </TextBlock>
-                </BulletDecorator>
-                
-                <BulletDecorator HorizontalAlignment="Center" Margin="0,0,0,5">
-                    <BulletDecorator.Bullet>
-                        <Ellipse Width="6" Height="6" Fill="{DynamicResource MaterialDesign.Brush.Primary}" Margin="0,6,10,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock>
-                        <Hyperlink NavigateUri="https://github.com/dotnet" RequestNavigate="Hyperlink_RequestNavigate">
-                            .NET
-                        </Hyperlink>
-                    </TextBlock>
-                </BulletDecorator>
-                
-                <BulletDecorator HorizontalAlignment="Center" Margin="0,0,0,20">
-                    <BulletDecorator.Bullet>
-                        <Ellipse Width="6" Height="6" Fill="{DynamicResource MaterialDesign.Brush.Primary}" Margin="0,6,10,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock>
-                        <Hyperlink NavigateUri="https://github.com/microsoft" RequestNavigate="Hyperlink_RequestNavigate">
-                            Windows Forms
-                        </Hyperlink>
-                    </TextBlock>
-                </BulletDecorator>
-                
                 <TextBlock Text="版权信息"
                            Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                            HorizontalAlignment="Center"

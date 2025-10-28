@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media.Imaging;
 
@@ -38,24 +37,6 @@ public partial class AboutPage : Page
         }
     }
     
-    /// <summary>
-    /// 处理超链接点击事件，打开浏览器访问链接
-    /// </summary>
-    /// <param name="sender">事件发送者</param>
-    /// <param name="e">导航事件参数</param>
-    private async void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-    {
-        try
-        {
-            // 使用系统默认浏览器打开链接
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
-        }
-        catch (Exception ex)
-        {
-            // 如果打开链接失败，显示错误信息
-            await ShowMessageBox("错误", $"无法打开链接: {ex.Message}", MessageBoxImage.Error);
-        }
-    }
     
     /// <summary>
     /// 显示MaterialDesign风格的消息框

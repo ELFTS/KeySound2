@@ -30,6 +30,12 @@ public partial class MainWindow : Window
     private WindowState _previousWindowState = WindowState.Normal; // 保存最大化前的窗口状态
     private bool _isRunning = false; // 添加运行状态标志
     
+    // 添加页面实例缓存
+    private HomePage _homePage;
+    private SoundSettingsPage _soundSettingsPage;
+    private SettingsPage _settingsPage;
+    private AboutPage _aboutPage;
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -63,34 +69,30 @@ public partial class MainWindow : Window
 
     private void InitializeSoundSettings()
     {
+        // 初始化音效设置
         _soundSettings = new SoundSettings();
         
-        // 尝试从配置文件加载设置
-        LoadSoundSettings();
-        
-        // 设置默认音效
-        string defaultSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds", "default.wav");
-        if (File.Exists(defaultSoundPath))
+        // 尝试加载保存的设置
+        string settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds.json");
+        if (File.Exists(settingsPath))
         {
-            _soundSettings.DefaultSoundPath = defaultSoundPath;
-            System.Diagnostics.Debug.WriteLine($"默认音效文件已设置: {defaultSoundPath}");
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"尝试加载设置文件: {settingsPath}");
+                _soundSettings.LoadFromScheme(Path.GetDirectoryName(settingsPath));
+                System.Diagnostics.Debug.WriteLine("设置文件加载成功");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"加载设置文件失败: {ex.Message}");
+            }
         }
         else
         {
-            // 如果默认音效文件不存在，尝试在程序目录下查找任何wav文件作为默认音效
-            string programDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string[] wavFiles = Directory.GetFiles(programDirectory, "*.wav", SearchOption.AllDirectories);
-            if (wavFiles.Length > 0)
-            {
-                _soundSettings.DefaultSoundPath = wavFiles[0];
-                System.Diagnostics.Debug.WriteLine($"使用找到的第一个WAV文件作为默认音效: {wavFiles[0]}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"默认音效文件不存在: {defaultSoundPath}");
-            }
+            System.Diagnostics.Debug.WriteLine($"设置文件不存在: {settingsPath}");
         }
         
+        // 初始化音效管理器
         _soundManager = new SoundManager(_soundSettings);
         System.Diagnostics.Debug.WriteLine("音效管理器已初始化");
     }
@@ -188,30 +190,42 @@ public partial class MainWindow : Window
             switch (element.Tag.ToString())
             {
                 case "MainControl":
-                    MainFrame.Content = new HomePage();
+                    // 导航到主页
+                    if (_homePage == null)
+                    {
+                        _homePage = new HomePage();
+                    }
+                    MainFrame.Content = _homePage;
                     // 设置选中效果（使用悬停颜色）
                     MainControlButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                     break;
                 case "SoundSettings":
-                    MainFrame.Content = new SoundSettingsPage();
+                    // 导航到音效设置页面
+                    if (_soundSettingsPage == null)
+                    {
+                        _soundSettingsPage = new SoundSettingsPage();
+                    }
+                    MainFrame.Content = _soundSettingsPage;
                     // 设置选中效果（使用悬停颜色）
                     SoundSettingsButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                     break;
                 case "ProgramSettings":
                     // 导航到设置页面
-                    if (MainFrame.Content == null || !(MainFrame.Content is SettingsPage))
+                    if (_settingsPage == null)
                     {
-                        MainFrame.Content = new SettingsPage();
+                        _settingsPage = new SettingsPage();
                     }
+                    MainFrame.Content = _settingsPage;
                     // 设置选中效果（使用悬停颜色）
                     ProgramSettingsButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                     break;
                 case "About":
                     // 导航到关于页面
-                    if (MainFrame.Content == null || !(MainFrame.Content is AboutPage))
+                    if (_aboutPage == null)
                     {
-                        MainFrame.Content = new AboutPage();
+                        _aboutPage = new AboutPage();
                     }
+                    MainFrame.Content = _aboutPage;
                     // 设置选中效果（使用悬停颜色）
                     AboutButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                     break;

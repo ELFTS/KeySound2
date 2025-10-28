@@ -62,4 +62,11 @@
     <Resource Include="Images\bottom_right.png" />
   </ItemGroup>
 
+  <!-- 添加启动窗口文件 -->
+  <ItemGroup>
+    <Page Include="SplashScreenWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
 </Project>

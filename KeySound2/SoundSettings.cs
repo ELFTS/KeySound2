@@ -18,8 +18,23 @@ namespace KeySound2
         // 存储每个按键的音量设置(0.0-1.0)
         private Dictionary<Key, float> _keyVolumes = new Dictionary<Key, float>();
         
-        // 默认音效文件路径
-        public string DefaultSoundPath { get; set; } = "";
+        // 默认音效路径
+        private string _defaultSoundPath = "";
+        public string DefaultSoundPath
+        {
+            get { return _defaultSoundPath; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && File.Exists(value))
+                {
+                    _defaultSoundPath = value;
+                }
+                else
+                {
+                    _defaultSoundPath = "";
+                }
+            }
+        }
         
         // 声音方案名称
         public string SoundSchemeName { get; set; } = "默认方案";
@@ -28,10 +43,10 @@ namespace KeySound2
         public string SoundSchemePath { get; set; } = "";
         
         /// <summary>
-        /// 为指定按键设置音效文件
+        /// 为指定按键设置音效
         /// </summary>
         /// <param name="key">按键</param>
-        /// <param name="soundPath">音效文件路径，如果为空则清除该按键的音效设置</param>
+        /// <param name="soundPath">音效文件路径</param>
         public void SetSoundForKey(Key key, string soundPath)
         {
             if (key == Key.None)
@@ -39,12 +54,9 @@ namespace KeySound2
                 
             if (string.IsNullOrEmpty(soundPath))
             {
-                // 清除按键音效设置
-                if (_keySounds.ContainsKey(key))
-                {
-                    _keySounds.Remove(key);
-                    System.Diagnostics.Debug.WriteLine($"已清除按键 {key} 的音效设置");
-                }
+                // 如果音效路径为空，移除该按键的设置
+                _keySounds.Remove(key);
+                System.Diagnostics.Debug.WriteLine($"已移除按键 {key} 的音效设置");
             }
             else
             {
@@ -52,6 +64,19 @@ namespace KeySound2
                 _keySounds[key] = soundPath;
                 System.Diagnostics.Debug.WriteLine($"已为按键 {key} 设置音效: {soundPath}");
             }
+        }
+        
+        /// <summary>
+        /// 清除指定按键的音效设置
+        /// </summary>
+        /// <param name="key">按键</param>
+        public void ClearSoundForKey(Key key)
+        {
+            if (key == Key.None)
+                return;
+                
+            _keySounds.Remove(key);
+            System.Diagnostics.Debug.WriteLine($"已清除按键 {key} 的音效设置");
         }
         
         /// <summary>
@@ -99,19 +124,11 @@ namespace KeySound2
                 System.Diagnostics.Debug.WriteLine($"按键 {key} 没有特定音效设置");
             }
             
-            // 检查默认音效路径
+            // 如果有设置默认音效且文件存在，返回默认音效
             if (!string.IsNullOrEmpty(DefaultSoundPath) && File.Exists(DefaultSoundPath))
             {
                 System.Diagnostics.Debug.WriteLine($"使用默认音效文件为按键 {key}: {DefaultSoundPath}");
                 return DefaultSoundPath;
-            }
-            else if (!string.IsNullOrEmpty(DefaultSoundPath))
-            {
-                System.Diagnostics.Debug.WriteLine($"默认音效文件不存在: {DefaultSoundPath}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"没有设置默认音效文件");
             }
             
             // 如果没有可用的音效文件，返回空字符串
@@ -173,20 +190,6 @@ namespace KeySound2
                     if (schemeSettings != null)
                     {
                         System.Diagnostics.Debug.WriteLine("配置文件解析成功");
-                        
-                        // 加载默认音效
-                        string defaultSoundPath = Path.Combine(schemePath, schemeSettings.DefaultSound);
-                        System.Diagnostics.Debug.WriteLine($"默认音效路径: {defaultSoundPath}");
-                        
-                        if (File.Exists(defaultSoundPath))
-                        {
-                            DefaultSoundPath = defaultSoundPath;
-                            System.Diagnostics.Debug.WriteLine($"默认音效文件已设置: {DefaultSoundPath}");
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.WriteLine($"默认音效文件不存在: {defaultSoundPath}");
-                        }
                         
                         // 加载按键音效
                         if (schemeSettings.KeySounds != null)
@@ -283,24 +286,8 @@ namespace KeySound2
             // 创建方案设置对象
             var schemeSettings = new SchemeSettings
             {
-                DefaultSound = "",
                 KeySounds = new Dictionary<Key, string>()
             };
-            
-            // 处理默认音效
-            if (!string.IsNullOrEmpty(DefaultSoundPath) && File.Exists(DefaultSoundPath))
-            {
-                string fileName = Path.GetFileName(DefaultSoundPath);
-                string targetPath = Path.Combine(schemePath, fileName);
-                
-                // 复制文件到方案目录
-                if (DefaultSoundPath != targetPath)
-                {
-                    File.Copy(DefaultSoundPath, targetPath, true);
-                }
-                
-                schemeSettings.DefaultSound = fileName;
-            }
             
             // 处理按键音效
             foreach (var kvp in _keySounds)
@@ -332,7 +319,6 @@ namespace KeySound2
     /// </summary>
     public class SchemeSettings
     {
-        public string DefaultSound { get; set; } = "";
         public Dictionary<Key, string> KeySounds { get; set; } = new Dictionary<Key, string>();
     }
 }

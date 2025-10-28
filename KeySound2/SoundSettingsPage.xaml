@@ -66,16 +66,6 @@
                     <!-- 右侧：按键音效设置 -->
                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
                         <TextBlock Text="按键音效" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,5"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                            <TextBlock Text="选择按键:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <ComboBox x:Name="KeySelectionComboBox" 
-                                      Width="120" 
-                                      VerticalAlignment="Center"/>
-                            <Button x:Name="SelectKeyWithVirtualKeyboardButton" 
-                                    Content="使用虚拟键盘选择" 
-                                    Style="{StaticResource MaterialDesignFlatButton}"
-                                    Margin="10,0,0,0" Padding="5"/>
-                        </StackPanel>
                         
                         <TextBlock Text="当前按键:" Margin="0,0,0,2"/>
                         <TextBlock x:Name="SelectedKeyText" 
@@ -88,6 +78,23 @@
                                    Text="未设置（使用默认音效）" 
                                    Style="{StaticResource MaterialDesignBody1TextBlock}"
                                    Margin="0,0,0,5"
+                                   TextWrapping="Wrap"/>
+                        
+                        <Button x:Name="SetSoundFileButton" 
+                                Content="设置音效文件" 
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Margin="0,0,0,5"
+                                Click="SetSoundFileButton_Click"/>
+                        
+                        <Button x:Name="ClearSoundFileButton" 
+                                Content="清除音效文件" 
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Margin="0,0,0,5"
+                                Click="ClearSoundFileButton_Click"/>
+                        
+                        <TextBlock Text="提示: 点击下方虚拟键盘选择要设置的按键" 
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Margin="0,10,0,0"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Grid>
@@ -115,9 +122,6 @@
                         <Button x:Name="RefreshSoundFilesButton" Content="刷新" 
                                 Style="{StaticResource MaterialDesignFlatButton}"
                                 Padding="5"/>
-                        <Button x:Name="SetKeySoundButton" Content="设置为按键音效" 
-                                Style="{StaticResource MaterialDesignRaisedButton}"
-                                Margin="10,0,0,0" Padding="5"/>
                     </StackPanel>
                     
                     <!-- 音效文件列表 -->
@@ -127,6 +131,7 @@
                               CanUserDeleteRows="False"
                               IsReadOnly="True"
                               SelectionMode="Single"
+                              MouseDoubleClick="SoundFilesDataGrid_MouseDoubleClick"
                               Margin="0,0,0,10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="*"/>

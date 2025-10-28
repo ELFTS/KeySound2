@@ -9,6 +9,7 @@ using MaterialDesignThemes.Wpf;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Media; // 添加此引用以支持颜色相关操作
 
 namespace KeySound2
 {
@@ -20,25 +21,22 @@ namespace KeySound2
         private SoundSettings _soundSettings;
         private SoundManager _soundManager;
         private Key _selectedKey = Key.None;
-        private bool _isSelectingKey = false;
         private List<SoundSchemeInfo> _availableSchemes = new List<SoundSchemeInfo>();
         private List<SoundFileInfo> _soundFiles = new List<SoundFileInfo>();
         private string _currentSoundsDirectory = "";
-        private DialogHost _mainWindowDialogHost = null; // 主窗口的DialogHost实例
+        private bool _isDialogOpen = false; // 添加标志以防止重复打开对话框
         
         public SoundSettingsPage()
         {
             InitializeComponent();
-            InitializeSoundSettings();
-            InitializeKeySelection();
-            LoadAvailableSchemes();
-            InitializeSoundFiles();
+            
+            // 初始化音效设置和管理器
+            _soundSettings = new SoundSettings();
+            _soundManager = new SoundManager(_soundSettings);
             
             // 绑定事件处理程序
             CreateSchemeButton.Click += CreateScheme_Click;
             SaveSchemeButton.Click += SaveScheme_Click;
-            SelectKeyWithVirtualKeyboardButton.Click += SelectKeyWithVirtualKeyboard_Click;
-            KeySelectionComboBox.SelectionChanged += KeySelectionComboBox_SelectionChanged;
             SchemeSelectionComboBox.SelectionChanged += SchemeSelectionComboBox_SelectionChanged;
             RefreshSchemesButton.Click += RefreshSchemesButton_Click;
             RenameSchemeButton.Click += RenameSchemeButton_Click;
@@ -47,44 +45,22 @@ namespace KeySound2
             // 音效文件管理事件处理程序
             ImportSoundFileButton.Click += ImportSoundFileButton_Click;
             DeleteSoundFileButton.Click += DeleteSoundFileButton_Click;
-            RenameSoundFileButton.Click += RenameSoundFileButton_Click;
             RefreshSoundFilesButton.Click += RefreshSoundFilesButton_Click;
+            RenameSoundFileButton.Click += RenameSoundFileButton_Click;
             SoundFilesDataGrid.SelectionChanged += SoundFilesDataGrid_SelectionChanged;
-            SetKeySoundButton.Click += SetKeySoundButton_Click; // 添加设置按键音效按钮事件处理程序
+            SoundFilesDataGrid.MouseDoubleClick += SoundFilesDataGrid_MouseDoubleClick;
+            SetSoundFileButton.Click += SetSoundFileButton_Click;
+            ClearSoundFileButton.Click += ClearSoundFileButton_Click;
             
             // 绑定虚拟键盘事件
             VirtualKeyboardControl.OnKeyPressed += VirtualKeyboard_OnKeyPressed;
+            
+            // 初始化声音方案和音效文件列表
+            LoadAvailableSchemes();
+            InitializeSoundFiles();
         }
         
-        private void InitializeSoundSettings()
-        {
-            _soundSettings = new SoundSettings();
-            // 设置默认音效
-            string defaultSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds", "default.wav");
-            if (File.Exists(defaultSoundPath))
-            {
-                _soundSettings.DefaultSoundPath = defaultSoundPath;
-            }
-            
-            _soundManager = new SoundManager(_soundSettings);
-            // UpdateCurrentSchemeDisplay(); // 移除对已删除控件的引用
-        }
         
-        private void InitializeKeySelection()
-        {
-            // 初始化按键选择下拉框
-            var keyList = Enum.GetValues(typeof(Key))
-                .Cast<Key>()
-                .Where(k => k != Key.None)
-                .OrderBy(k => k.ToString())
-                .ToList();
-            
-            KeySelectionComboBox.ItemsSource = keyList;
-            KeySelectionComboBox.SelectedItem = Key.A; // 默认选择A键
-            _selectedKey = Key.A;
-            UpdateSelectedKeyDisplay();
-            UpdateCurrentSoundPathDisplay();
-        }
         
         private void InitializeSoundFiles()
         {
@@ -185,20 +161,6 @@ namespace KeySound2
             SchemeSelectionComboBox.SelectedIndex = 0; // 默认选择第一个（默认方案）
         }
         
-        /// <summary>
-        /// 按键选择下拉框选择变化事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void KeySelectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (KeySelectionComboBox.SelectedItem is Key selectedKey)
-            {
-                _selectedKey = selectedKey;
-                UpdateSelectedKeyDisplay();
-                UpdateCurrentSoundPathDisplay();
-            }
-        }
         
         /// <summary>
         /// 方案选择下拉框选择变化事件
@@ -247,18 +209,22 @@ namespace KeySound2
         }
         
         /// <summary>
-        /// 更新当前选中按键显示
+        /// 使用虚拟键盘选择按键开关启用事件
         /// </summary>
-        private void UpdateSelectedKeyDisplay()
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectKeyWithVirtualKeyboardToggle_Checked(object sender, RoutedEventArgs e)
         {
-            if (_selectedKey != Key.None)
-            {
-                SelectedKeyText.Text = _selectedKey.ToString();
-            }
-            else
-            {
-                SelectedKeyText.Text = "未选择";
-            }
+            ShowMessageBox("提示", "请在下方虚拟键盘中点击要设置音效的按键");
+        }
+        
+        /// <summary>
+        /// 使用虚拟键盘选择按键开关禁用事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectKeyWithVirtualKeyboardToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
         }
         
         /// <summary>
@@ -271,50 +237,36 @@ namespace KeySound2
                 string soundPath = _soundSettings.GetSoundPathForKey(_selectedKey);
                 if (!string.IsNullOrEmpty(soundPath))
                 {
-                    CurrentSoundPathText.Text = System.IO.Path.GetFileName(soundPath);
+                    CurrentSoundPathText.Text = soundPath;
                 }
                 else
                 {
                     CurrentSoundPathText.Text = "未设置（使用默认音效）";
                 }
             }
+            else
+            {
+                CurrentSoundPathText.Text = "未设置（使用默认音效）";
+            }
         }
         
         /// <summary>
-        /// 更新当前声音方案显示
+        /// 虚拟键盘按键事件处理
         /// </summary>
-        private void UpdateCurrentSchemeDisplay()
-        {
-            // 移除此方法的实现，因为相关控件已被删除
-            /*
-            if (_soundSettings != null)
-            {
-                CurrentSchemeText.Text = _soundSettings.SoundSchemeName;
-            }
-            */
-        }
-        
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void VirtualKeyboard_OnKeyPressed(object sender, KeyPressedEventArgs e)
         {
             // 处理虚拟键盘按键事件
             System.Diagnostics.Debug.WriteLine($"虚拟键盘按键按下: {e.Key}");
             
-            // 如果正在使用虚拟键盘选择按键
-            if (_isSelectingKey)
-            {
-                // 选择按键并退出选择模式
-                _selectedKey = e.Key;
-                KeySelectionComboBox.SelectedItem = e.Key;
-                _isSelectingKey = false;
-                UpdateSelectedKeyDisplay();
-                UpdateCurrentSoundPathDisplay();
-                ShowMessageBox("提示", $"已选择按键: {e.Key}");
-            }
-            else
-            {
-                // 正常播放音效
-                _soundManager?.PlaySound(e.Key);
-            }
+            // 直接选择按键
+            _selectedKey = e.Key;
+            SelectedKeyText.Text = _selectedKey.ToString();
+            UpdateCurrentSoundPathDisplay();
+            
+            // 播放选中按键的音效
+            _soundManager?.PlaySound(e.Key);
         }
         
         /// <summary>
@@ -324,7 +276,6 @@ namespace KeySound2
         /// <param name="e"></param>
         private void SelectKeyWithVirtualKeyboard_Click(object sender, RoutedEventArgs e)
         {
-            _isSelectingKey = true;
             ShowMessageBox("提示", "请在下方虚拟键盘中点击要设置音效的按键");
         }
         
@@ -663,15 +614,15 @@ namespace KeySound2
         }
         
         /// <summary>
-        /// 设置按键音效按钮点击事件
+        /// 设置音效文件按钮点击事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SetKeySoundButton_Click(object sender, RoutedEventArgs e)
+        private void SetSoundFileButton_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKey == Key.None)
             {
-                ShowMessageBox("提示", "请选择一个按键");
+                ShowMessageBox("提示", "请先在虚拟键盘中选择一个按键。");
                 return;
             }
             
@@ -707,6 +658,43 @@ namespace KeySound2
         }
         
         /// <summary>
+        /// 清除音效文件按钮点击事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearSoundFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedKey == Key.None)
+            {
+                ShowMessageBox("提示", "请先在虚拟键盘中选择一个按键。");
+                return;
+            }
+            
+            try
+            {
+                // 清除按键音效设置
+                _soundSettings.ClearSoundForKey(_selectedKey);
+                UpdateCurrentSoundPathDisplay();
+                ShowMessageBox("提示", $"{_selectedKey} 键的音效已清除！");
+                
+                // 如果当前选择了有效的方案，则保存到该方案
+                if (SchemeSelectionComboBox.SelectedItem is SoundSchemeInfo selectedScheme && 
+                    !string.IsNullOrEmpty(selectedScheme.Path))
+                {
+                    _soundSettings.SaveToScheme(selectedScheme.Path);
+                    ShowMessageBox("提示", $"声音方案 \"{selectedScheme.Name}\" 已更新！");
+                }
+                
+                // 更新主窗口的音效设置
+                UpdateMainWindowSoundSettings();
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("错误", $"清除 {_selectedKey} 键音效失败: {ex.Message}", MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
         /// 音效文件列表选择变化事件
         /// </summary>
         /// <param name="sender"></param>
@@ -715,7 +703,78 @@ namespace KeySound2
         {
             if (SoundFilesDataGrid.SelectedItem is SoundFileInfo selectedFile)
             {
-                // 可以在这里添加选中文件后的操作，比如预览等
+                // 如果已选择按键，则自动设置为该按键的音效
+                if (_selectedKey != Key.None)
+                {
+                    try
+                    {
+                        // 设置按键音效
+                        _soundSettings.SetSoundForKey(_selectedKey, selectedFile.FullName);
+                        UpdateCurrentSoundPathDisplay();
+                        
+                        // 如果当前选择了有效的方案，则保存到该方案
+                        if (SchemeSelectionComboBox.SelectedItem is SoundSchemeInfo selectedScheme && 
+                            !string.IsNullOrEmpty(selectedScheme.Path))
+                        {
+                            _soundSettings.SaveToScheme(selectedScheme.Path);
+                        }
+                        
+                        // 更新主窗口的音效设置
+                        UpdateMainWindowSoundSettings();
+                        
+                        // 播放音效预览
+                        _soundManager?.PlaySound(_selectedKey);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowMessageBox("错误", $"设置 {_selectedKey} 键音效失败: {ex.Message}", MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 音效文件列表鼠标双击事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SoundFilesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (SoundFilesDataGrid.SelectedItem is SoundFileInfo selectedFile)
+            {
+                // 如果已选择按键，则设置为该按键的音效
+                if (_selectedKey != Key.None)
+                {
+                    try
+                    {
+                        // 设置按键音效
+                        _soundSettings.SetSoundForKey(_selectedKey, selectedFile.FullName);
+                        UpdateCurrentSoundPathDisplay();
+                        
+                        // 如果当前选择了有效的方案，则保存到该方案
+                        if (SchemeSelectionComboBox.SelectedItem is SoundSchemeInfo selectedScheme && 
+                            !string.IsNullOrEmpty(selectedScheme.Path))
+                        {
+                            _soundSettings.SaveToScheme(selectedScheme.Path);
+                        }
+                        
+                        // 更新主窗口的音效设置
+                        UpdateMainWindowSoundSettings();
+                        
+                        // 播放音效预览
+                        _soundManager?.PlaySound(_selectedKey);
+                        
+                        ShowMessageBox("提示", $"{_selectedKey} 键的音效已设置为: {selectedFile.Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowMessageBox("错误", $"设置 {_selectedKey} 键音效失败: {ex.Message}", MessageBoxImage.Error);
+                    }
+                }
+                else
+                {
+                    ShowMessageBox("提示", "请先在虚拟键盘中选择一个按键。");
+                }
             }
         }
         
@@ -885,62 +944,57 @@ namespace KeySound2
         /// <param name="image">消息图标类型</param>
         private async void ShowMessageBox(string title, string message, MessageBoxImage image = MessageBoxImage.Information)
         {
-            // 获取主窗口实例和DialogHost
-            if (Application.Current.MainWindow is MainWindow mainWindow && _mainWindowDialogHost == null)
-            {
-                _mainWindowDialogHost = mainWindow.FindName("MainDialogHost") as DialogHost;
-            }
-
-            if (_mainWindowDialogHost == null)
-            {
-                // 如果找不到DialogHost，直接返回
+            // 检查是否已有对话框打开
+            if (_isDialogOpen)
                 return;
+                
+            _isDialogOpen = true;
+            
+            try
+            {
+                // 创建对话框内容
+                var dialogContent = new StackPanel
+                {
+                    Margin = new Thickness(16)
+                };
+
+                // 添加标题
+                dialogContent.Children.Add(new TextBlock
+                {
+                    Text = title,
+                    Style = (Style)FindResource("MaterialDesignHeadline6TextBlock"),
+                    Margin = new Thickness(0, 0, 0, 8)
+                });
+
+                // 添加消息内容
+                dialogContent.Children.Add(new TextBlock
+                {
+                    Text = message,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 16)
+                });
+
+                // 添加按钮
+                var okButton = new System.Windows.Controls.Button
+                {
+                    Content = "确定",
+                    Style = (Style)FindResource("MaterialDesignFlatButton"),
+                    Margin = new Thickness(0, 0, 0, 0)
+                };
+
+                // 设置按钮点击命令参数为true
+                okButton.CommandParameter = true;
+                okButton.Command = DialogHost.CloseDialogCommand;
+
+                dialogContent.Children.Add(okButton);
+
+                // 显示对话框
+                await DialogHost.Show(dialogContent, "RootDialog");
             }
-
-            // 检查是否已经有对话框打开
-            if (_mainWindowDialogHost.IsOpen)
+            finally
             {
-                return;
+                _isDialogOpen = false;
             }
-
-            // 创建对话框内容
-            var dialogContent = new StackPanel
-            {
-                Margin = new Thickness(16)
-            };
-
-            // 添加标题
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = title,
-                Style = (Style)FindResource("MaterialDesignHeadline6TextBlock"),
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-
-            // 添加消息内容
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = message,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 16)
-            });
-
-            // 添加按钮
-            var okButton = new System.Windows.Controls.Button
-            {
-                Content = "确定",
-                Style = (Style)FindResource("MaterialDesignFlatButton"),
-                Margin = new Thickness(0, 0, 0, 0)
-            };
-
-            // 设置按钮点击命令参数为true
-            okButton.CommandParameter = true;
-            okButton.Command = DialogHost.CloseDialogCommand;
-
-            dialogContent.Children.Add(okButton);
-
-            // 显示对话框
-            await _mainWindowDialogHost.Show(dialogContent);
         }
     }
     
