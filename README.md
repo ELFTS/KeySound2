@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="150" src="/KeySound2/KeySound2/Images/logo.png"></img>
+    <img width="150" src="/KeySound2/Images/logo.png"></img>
 </div>
 <h1 align="center">KeySound2</h1>
 <h4 align="center">一款适合迷惑行为的键盘音效软件~</h4>
