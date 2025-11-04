@@ -1,599 +1,339 @@
 using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
-using System.Media;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using Microsoft.Win32;
-using System.Text.Json;
-using System.Windows.Media;
+using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Interop;
+using KeySound2.Views;
+using KeySound2.Components;
+using KeySound2.Services;
+using KeySound2.Models;
 using MaterialDesignThemes.Wpf;
-using System.Threading.Tasks;
-using System.Linq;
 
-namespace KeySound2;
-
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
-public partial class MainWindow : Window
+namespace KeySound2
 {
-    private KeyboardHook _keyboardHook;
-    private SoundManager _soundManager;
-    private SoundSettings _soundSettings;
-    private AppSettings _appSettings;
-    private NotifyIcon _notifyIcon;
-    private bool _isExiting = false; // 添加退出标志
-    private WindowState _previousWindowState = WindowState.Normal; // 保存最大化前的窗口状态
-    private bool _isRunning = false; // 添加运行状态标志
-    
-    // 添加页面实例缓存
-    private HomePage _homePage;
-    private SoundSettingsPage _soundSettingsPage;
-    private SettingsPage _settingsPage;
-    private AboutPage _aboutPage;
-    
-    public MainWindow()
+    /// <summary>
+    /// MainWindow.xaml 的交互逻辑
+    /// </summary>
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
-        InitializeAppSettings();
-        InitializeSoundSettings();
-        InitializeTrayIcon();
+        private readonly List<SidebarItem> sidebarItems = new List<SidebarItem>();
         
-        // 设置初始ToolTip
-        StartStopButton.ToolTip = "状态：已停止";
-        
-        // 修复最大化时任务栏被遮挡的问题
-        MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-        
-        // 根据设置决定是否启动时最小化
-        if (_appSettings.StartMinimized)
-        {
-            WindowState = WindowState.Minimized;
-            Hide();
-        }
-        else
-        {
-            // 默认显示主页
-            MainFrame.Content = new HomePage();
-        }
-    }
-    
-    private void InitializeAppSettings()
-    {
-        _appSettings = AppSettings.Load();
-    }
+        // 服务和管理器
+        private readonly SoundService _soundService;
+        private readonly ProfileManager _profileManager;
+        private readonly AudioFileManager _audioFileManager;
 
-    private void InitializeSoundSettings()
-    {
-        // 初始化音效设置
-        _soundSettings = new SoundSettings();
+        // 用于存储窗口正常状态时的位置和大小
+        private Rect _normalWindowState = Rect.Empty;
         
-        // 尝试加载保存的设置
-        string settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds.json");
-        if (File.Exists(settingsPath))
+        // Windows API 常量
+        private const int WM_GETMINMAXINFO = 0x0024;
+        private const int MONITOR_DEFAULTTONEAREST = 0x00000002;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            
+            // 初始化服务和管理器
+            _profileManager = new ProfileManager();
+            _audioFileManager = new AudioFileManager();
+            _soundService = new SoundService(_profileManager);
+            
+            // 初始化导航
+            InitializeNavigation();
+            
+            Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeSidebar();
+            // 默认加载主页内容
+            LoadContent("Home");
+            
+            // 记录窗口正常状态时的位置和大小
+            UpdateNormalWindowState();
+        }
+
+        // 初始化导航
+        private void InitializeNavigation()
+        {
+            // 设置默认视图
+            MainContentArea.Content = new HomeView();
+            
+            // 绑定侧边栏项目事件
+            // 注意：这里我们不直接绑定控件事件，因为控件是在InitializeSidebar中动态创建的
+        }
+
+        private void InitializeSidebar()
+        {
+            // 清空现有项目
+            SidebarPanel.Children.Clear();
+            sidebarItems.Clear();
+
+            // 添加侧边栏菜单项
+            var homeItem = new SidebarItem
+            {
+                Text = "主页",
+                Icon = "res://home.png"
+            };
+            homeItem.Click += (sender, e) => LoadContent("Home");
+            SidebarPanel.Children.Add(homeItem);
+            sidebarItems.Add(homeItem);
+
+            var soundItem = new SidebarItem
+            {
+                Text = "音效设置",
+                Icon = "res://music.png"
+            };
+            soundItem.Click += (sender, e) => LoadContent("Sound");
+            SidebarPanel.Children.Add(soundItem);
+            sidebarItems.Add(soundItem);
+
+            var settingsItem = new SidebarItem
+            {
+                Text = "系统设置",
+                Icon = "res://settings.png"
+            };
+            settingsItem.Click += (sender, e) => LoadContent("Settings");
+            SidebarPanel.Children.Add(settingsItem);
+            sidebarItems.Add(settingsItem);
+
+            var aboutItem = new SidebarItem
+            {
+                Text = "关于",
+                Icon = "res://info.png"
+            };
+            aboutItem.Click += (sender, e) => LoadContent("About");
+            SidebarPanel.Children.Add(aboutItem);
+            sidebarItems.Add(aboutItem);
+
+            // 设置默认选中项
+            if (sidebarItems.Count > 0)
+            {
+                sidebarItems[0].IsActive = true;
+            }
+        }
+
+        private void LoadContent(string contentType)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"尝试加载设置文件: {settingsPath}");
-                _soundSettings.LoadFromScheme(Path.GetDirectoryName(settingsPath));
-                System.Diagnostics.Debug.WriteLine("设置文件加载成功");
+                // 先取消所有侧边栏项目的选中状态
+                foreach (var item in sidebarItems)
+                {
+                    item.IsActive = false;
+                }
+
+                UserControl content = contentType switch
+                {
+                    "Home" => new HomeView(),
+                    "Sound" => new SoundSettingsView(),
+                    "Settings" => new SettingsView(),
+                    "About" => new AboutView(),
+                    _ => new HomeView()
+                };
+
+                // 如果是音效设置视图，设置服务引用
+                if (content is SoundSettingsView soundSettingsView)
+                {
+                    soundSettingsView.SetServices(_soundService, _profileManager, _audioFileManager);
+                }
+
+                MainContentArea.Content = content;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"加载设置文件失败: {ex.Message}");
+                MessageBox.Show($"加载内容时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        else
+
+        #region 窗口控制事件
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"设置文件不存在: {settingsPath}");
-        }
-        
-        // 初始化音效管理器
-        _soundManager = new SoundManager(_soundSettings);
-        System.Diagnostics.Debug.WriteLine("音效管理器已初始化");
-    }
-    
-    private void InitializeTrayIcon()
-    {
-        _notifyIcon = new NotifyIcon();
-        _notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        _notifyIcon.Visible = _appSettings.ShowTrayIcon; // 根据设置决定是否显示托盘图标
-        _notifyIcon.Text = "KeySound2";
-        
-        // 创建上下文菜单
-        ContextMenuStrip contextMenu = new ContextMenuStrip();
-        ToolStripMenuItem showItem = new ToolStripMenuItem("显示主窗口");
-        showItem.Click += ShowMainWindow_Click;
-        contextMenu.Items.Add(showItem);
-        
-        ToolStripMenuItem exitItem = new ToolStripMenuItem("退出");
-        exitItem.Click += ExitMenuItem_Click;
-        contextMenu.Items.Add(exitItem);
-        
-        _notifyIcon.ContextMenuStrip = contextMenu;
-        
-        // 双击托盘图标显示主窗口
-        _notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
-    }
-    
-    private void StartStopButton_Click(object sender, RoutedEventArgs e)
-    {
-        System.Diagnostics.Debug.WriteLine($"StartStopButton_Click 被调用，当前状态: {_isRunning}");
-        if (_isRunning)
-        {
-            // 当前正在运行，需要停止
-            StopKeyboardHook();
-        }
-        else
-        {
-            // 当前未运行，需要开始
-            StartKeyboardHook();
-        }
-    }
-    
-    private void StartKeyboardHook()
-    {
-        System.Diagnostics.Debug.WriteLine("StartKeyboardHook 被调用");
-        if (_keyboardHook == null)
-        {
-            _keyboardHook = new KeyboardHook();
-            _keyboardHook.OnKeyPressed += OnKeyPressed;
-            _keyboardHook.Start();
-        }
-        _isRunning = true;
-        StartStopButton.ToolTip = "状态：运行中";
-        StartStopIcon.Kind = PackIconKind.Stop; // 更改图标为停止图标
-        System.Diagnostics.Debug.WriteLine("键盘钩子已启动");
-    }
-    
-    private void StopKeyboardHook()
-    {
-        System.Diagnostics.Debug.WriteLine("StopKeyboardHook 被调用");
-        _keyboardHook?.Stop();
-        _keyboardHook = null;
-        _isRunning = false;
-        StartStopButton.ToolTip = "状态：已停止";
-        StartStopIcon.Kind = PackIconKind.Play; // 更改图标为播放图标
-        System.Diagnostics.Debug.WriteLine("键盘钩子已停止");
-    }
-    
-    private void OnKeyPressed(object sender, KeyPressedEventArgs e)
-    {
-        // 播放按键音效
-        System.Diagnostics.Debug.WriteLine($"按键按下: {e.Key}");
-        if (_soundManager != null)
-        {
-            System.Diagnostics.Debug.WriteLine($"调用音效管理器播放音效: {e.Key}");
-            _soundManager.PlaySound(e.Key);
-        }
-        else
-        {
-            System.Diagnostics.Debug.WriteLine("音效管理器为空");
-        }
-    }
-    
-    private void NavigationButton_Click(object sender, RoutedEventArgs e)
-    {
-        // 重置所有按钮的背景色（使用默认颜色）
-        MainControlButton.ClearValue(System.Windows.Controls.Button.BackgroundProperty);
-        SoundSettingsButton.ClearValue(System.Windows.Controls.Button.BackgroundProperty);
-        ProgramSettingsButton.ClearValue(System.Windows.Controls.Button.BackgroundProperty);
-        AboutButton.ClearValue(System.Windows.Controls.Button.BackgroundProperty);
-        
-        // 根据点击的按钮设置选中效果
-        if (sender is FrameworkElement element)
-        {
-            switch (element.Tag.ToString())
+            // 记录鼠标点击时的位置
+            var position = e.GetPosition(this);
+            
+            // 判断是单击还是双击
+            if (e.ClickCount == 2 && position.Y <= 30) // 30是标题栏高度
             {
-                case "MainControl":
-                    // 导航到主页
-                    if (_homePage == null)
-                    {
-                        _homePage = new HomePage();
-                    }
-                    MainFrame.Content = _homePage;
-                    // 设置选中效果（使用悬停颜色）
-                    MainControlButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-                    break;
-                case "SoundSettings":
-                    // 导航到音效设置页面
-                    if (_soundSettingsPage == null)
-                    {
-                        _soundSettingsPage = new SoundSettingsPage();
-                    }
-                    MainFrame.Content = _soundSettingsPage;
-                    // 设置选中效果（使用悬停颜色）
-                    SoundSettingsButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-                    break;
-                case "ProgramSettings":
-                    // 导航到设置页面
-                    if (_settingsPage == null)
-                    {
-                        _settingsPage = new SettingsPage();
-                    }
-                    MainFrame.Content = _settingsPage;
-                    // 设置选中效果（使用悬停颜色）
-                    ProgramSettingsButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-                    break;
-                case "About":
-                    // 导航到关于页面
-                    if (_aboutPage == null)
-                    {
-                        _aboutPage = new AboutPage();
-                    }
-                    MainFrame.Content = _aboutPage;
-                    // 设置选中效果（使用悬停颜色）
-                    AboutButton.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-                    break;
+                // 双击标题栏最大化/还原窗口
+                ToggleWindowState();
             }
-        }
-    }
-    
-    // 窗口控制事件处理
-    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-    {
-        WindowState = WindowState.Minimized;
-    }
-    
-    private void MaximizeButton_Click(object sender, RoutedEventArgs e)
-    {
-        // 切换最大化/还原状态
-        if (WindowState == WindowState.Maximized)
-        {
-            WindowState = _previousWindowState;
-        }
-        else
-        {
-            _previousWindowState = WindowState;
-            WindowState = WindowState.Maximized;
-        }
-    }
-    
-    private async void CloseButton_Click(object sender, RoutedEventArgs e)
-    {
-        // 保存音效设置
-        SaveSoundSettings();
-        System.Diagnostics.Debug.WriteLine("保存音效设置完成");
-        
-        // 根据设置决定是关闭还是最小化到托盘
-        if (_appSettings.MinimizeToTray)
-        {
-            System.Diagnostics.Debug.WriteLine("显示最小化到托盘确认对话框");
-            // 弹出MaterialDesign风格的信息框确认是否关闭到托盘
-            var result = await ShowMaterialConfirmBox("提示", "是否最小化到系统托盘？\n点击\"是\"最小化到托盘，点击\"否\"直接退出程序。");
-            if (result == true)
+            else if (position.Y <= 30) // 点击在标题栏区域
             {
-                // 点击关闭按钮时最小化到托盘而不是关闭程序
-                System.Diagnostics.Debug.WriteLine("用户选择最小化到托盘");
-                Hide();
+                // 拖动窗口
+                DragMove();
             }
-            else if (result == false)
-            {
-                // 直接退出程序
-                System.Diagnostics.Debug.WriteLine("用户选择直接退出程序");
-                _isExiting = true;
-                Close();
-            }
-            // 如果用户关闭对话框或点击取消，则不执行任何操作
         }
-        else
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("根据设置直接退出程序");
-            // 直接退出程序
-            _isExiting = true;
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleWindowState();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
             Close();
         }
-    }
-    
-    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount == 2)
+
+        private void ToggleWindowState()
         {
-            // 双击标题栏切换最大化/还原
-            MaximizeButton_Click(sender, e);
-        }
-        else
-        {
-            // 拖动窗口
-            DragMove();
-        }
-    }
-    
-    // 托盘图标事件处理
-    private void NotifyIcon_DoubleClick(object sender, EventArgs e)
-    {
-        ShowMainWindow();
-    }
-    
-    private void ShowMainWindow_Click(object sender, EventArgs e)
-    {
-        ShowMainWindow();
-    }
-    
-    private void ShowMainWindow()
-    {
-        Show();
-        WindowState = WindowState.Normal;
-        Activate();
-    }
-    
-    private void ExitMenuItem_Click(object sender, EventArgs e)
-    {
-        // 保存音效设置
-        SaveSoundSettings();
-        
-        // 设置退出标志并关闭程序
-        _isExiting = true;
-        Close();
-    }
-    
-    private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    {
-        // 只有在非退出状态下才取消关闭并隐藏窗口
-        // 只有在非退出状态下才取消关闭并隐藏窗口
-        if (!_isExiting)
-        {
-            if (_appSettings.MinimizeToTray)
+            if (WindowState == WindowState.Maximized)
             {
-                e.Cancel = true;
-                Hide();
+                // 还原窗口
+                WindowState = WindowState.Normal;
+                MaximizeIcon.Kind = PackIconKind.WindowMaximize;
             }
             else
             {
-                _isExiting = true;
-                Close();
+                // 记录当前窗口状态
+                UpdateNormalWindowState();
+                
+                // 最大化窗口
+                WindowState = WindowState.Maximized;
+                MaximizeIcon.Kind = PackIconKind.WindowRestore;
             }
         }
-        else
-        {
-            // 退出程序前清理资源
-            StopKeyboardHook(); // 确保停止键盘钩子
-            _soundManager?.Dispose();
-            _notifyIcon?.Dispose();
-        }
-    }
-    
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-    }
-    
-    // 修复最大化时任务栏被遮挡的问题
-    protected override void OnStateChanged(EventArgs e)
-    {
-        base.OnStateChanged(e);
         
-        // 根据窗口状态更新最大化按钮图标
-        if (MaximizeButton != null)
+        /// <summary>
+        /// 更新窗口正常状态时的位置和大小
+        /// </summary>
+        private void UpdateNormalWindowState()
         {
-            // 查找按钮内的图标
-            PackIcon icon = null;
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(MaximizeButton); i++)
+            if (WindowState == WindowState.Normal)
             {
-                var child = VisualTreeHelper.GetChild(MaximizeButton, i);
-                if (child is PackIcon packIcon)
-                {
-                    icon = packIcon;
-                    break;
-                }
+                _normalWindowState = new Rect(Left, Top, Width, Height);
             }
+        }
+
+        #endregion
+
+        #region 窗口消息处理
+
+        // 重写此方法以处理窗口消息
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
             
-            if (icon != null)
+            // 获取窗口句柄
+            var handle = new WindowInteropHelper(this).Handle;
+            
+            // 添加窗口消息钩子
+            HwndSource.FromHwnd(handle)?.AddHook(WindowProc);
+        }
+
+        // 窗口消息处理函数
+        private IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
             {
-                // 根据窗口状态更新图标
-                if (WindowState == WindowState.Maximized)
+                case WM_GETMINMAXINFO:
+                    // 当窗口最大化时，调整其大小以避免遮挡任务栏
+                    if (WindowState == WindowState.Normal)
+                    {
+                        UpdateNormalWindowState();
+                    }
+                    WmGetMinMaxInfo(hwnd, lParam);
+                    handled = true;
+                    break;
+            }
+
+            return IntPtr.Zero;
+        }
+
+        // 处理WM_GETMINMAXINFO消息
+        private void WmGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
+        {
+            // 获取屏幕工作区（不包括任务栏）
+            var monitor = NativeMethods.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+            if (monitor != IntPtr.Zero)
+            {
+                var monitorInfo = new NativeMethods.MONITORINFO();
+                monitorInfo.cbSize = Marshal.SizeOf(monitorInfo);
+                
+                if (NativeMethods.GetMonitorInfo(monitor, ref monitorInfo))
                 {
-                    icon.Kind = PackIconKind.WindowRestore;
-                }
-                else
-                {
-                    icon.Kind = PackIconKind.WindowMaximize;
+                    var minMaxInfo = Marshal.PtrToStructure<NativeMethods.MINMAXINFO>(lParam);
+                    
+                    // 设置最大化时的窗口位置和大小，避免遮挡任务栏
+                    minMaxInfo.ptMaxPosition.X = Math.Abs(monitorInfo.rcWork.Left - monitorInfo.rcMonitor.Left);
+                    minMaxInfo.ptMaxPosition.Y = Math.Abs(monitorInfo.rcWork.Top - monitorInfo.rcMonitor.Top);
+                    minMaxInfo.ptMaxSize.X = Math.Abs(monitorInfo.rcWork.Right - monitorInfo.rcWork.Left);
+                    minMaxInfo.ptMaxSize.Y = Math.Abs(monitorInfo.rcWork.Bottom - monitorInfo.rcWork.Top);
+                    
+                    Marshal.StructureToPtr(minMaxInfo, lParam, true);
                 }
             }
         }
-    }
-    
-    /// <summary>
-    /// 显示MaterialDesign风格的消息框
-    /// </summary>
-    /// <param name="title">标题</param>
-    /// <param name="message">消息内容</param>
-    /// <param name="image">消息图标类型</param>
-    private async Task ShowMaterialMessageBox(string title, string message, MessageBoxImage image = MessageBoxImage.Information)
-    {
-        // 创建对话框内容
-        var dialogContent = new StackPanel
+
+        #endregion
+
+        protected override void OnClosed(EventArgs e)
         {
-            Margin = new Thickness(16)
-        };
-
-        // 添加标题
-        dialogContent.Children.Add(new TextBlock
-        {
-            Text = title,
-            Style = (Style)FindResource("MaterialDesignHeadline6TextBlock"),
-            Margin = new Thickness(0, 0, 0, 8)
-        });
-
-        // 添加消息内容
-        dialogContent.Children.Add(new TextBlock
-        {
-            Text = message,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 0, 0, 16)
-        });
-
-        // 添加按钮
-        var okButton = new System.Windows.Controls.Button
-        {
-            Content = "确定",
-            Style = (Style)FindResource("MaterialDesignFlatButton"),
-            Margin = new Thickness(0, 0, 0, 0)
-        };
-
-        // 设置按钮点击命令参数为true
-        okButton.CommandParameter = true;
-        okButton.Command = DialogHost.CloseDialogCommand;
-
-        dialogContent.Children.Add(okButton);
-
-        // 显示对话框
-        await DialogHost.Show(dialogContent, "RootDialog");
-    }
-    
-    /// <summary>
-    /// 显示MaterialDesign风格的确认框
-    /// </summary>
-    /// <param name="title">标题</param>
-    /// <param name="message">消息内容</param>
-    /// <returns>用户选择结果：true=是，false=否，null=取消</returns>
-    private async Task<bool?> ShowMaterialConfirmBox(string title, string message)
-    {
-        // 创建对话框内容
-        var dialogContent = new StackPanel
-        {
-            Margin = new Thickness(16)
-        };
-
-        // 添加标题
-        dialogContent.Children.Add(new TextBlock
-        {
-            Text = title,
-            Style = (Style)FindResource("MaterialDesignHeadline6TextBlock"),
-            Margin = new Thickness(0, 0, 0, 8)
-        });
-
-        // 添加消息内容
-        dialogContent.Children.Add(new TextBlock
-        {
-            Text = message,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 0, 0, 16)
-        });
-
-        // 添加按钮面板
-        var buttonPanel = new StackPanel
-        {
-            Orientation = System.Windows.Controls.Orientation.Horizontal,
-            HorizontalAlignment = System.Windows.HorizontalAlignment.Right
-        };
-
-        // 添加"是"按钮
-        var yesButton = new System.Windows.Controls.Button
-        {
-            Content = "是",
-            Style = (Style)FindResource("MaterialDesignFlatButton"),
-            Margin = new Thickness(0, 0, 8, 0)
-        };
-        yesButton.CommandParameter = true;
-        yesButton.Command = DialogHost.CloseDialogCommand;
-        buttonPanel.Children.Add(yesButton);
-
-        // 添加"否"按钮
-        var noButton = new System.Windows.Controls.Button
-        {
-            Content = "否",
-            Style = (Style)FindResource("MaterialDesignFlatButton"),
-            Margin = new Thickness(0, 0, 8, 0)
-        };
-        noButton.CommandParameter = false;
-        noButton.Command = DialogHost.CloseDialogCommand;
-        buttonPanel.Children.Add(noButton);
-
-        // 添加"取消"按钮
-        var cancelButton = new System.Windows.Controls.Button
-        {
-            Content = "取消",
-            Style = (Style)FindResource("MaterialDesignFlatButton")
-        };
-        cancelButton.CommandParameter = null;
-        cancelButton.Command = DialogHost.CloseDialogCommand;
-        buttonPanel.Children.Add(cancelButton);
-
-        dialogContent.Children.Add(buttonPanel);
-
-        // 显示对话框并返回结果
-        var result = await DialogHost.Show(dialogContent, "RootDialog");
-        return result as bool?;
-    }
-    
-    /// <summary>
-    /// 更新音效设置页面的音效设置
-    /// </summary>
-    /// <param name="settings">新的音效设置</param>
-    public void UpdateSoundSettings(SoundSettings settings)
-    {
-        // 如果当前显示的是音效设置页面，则更新其设置
-        if (MainFrame.Content is SoundSettingsPage soundSettingsPage)
-        {
-            // 注意：这里我们不直接调用不存在的SetSoundSettings方法
-            // 而是通过其他方式更新设置，例如通过事件或属性
-            System.Diagnostics.Debug.WriteLine("尝试更新音效设置页面的设置");
+            base.OnClosed(e);
+            
+            // 释放资源
+            _soundService?.Dispose();
         }
     }
     
-    /// <summary>
-    /// 更新SoundManager的音效设置
-    /// </summary>
-    /// <param name="settings">新的音效设置</param>
-    public void UpdateSoundManager(SoundSettings settings)
+    // Windows API 调用所需的结构和方法
+    internal static class NativeMethods
     {
-        if (_soundManager != null)
+        [DllImport("user32.dll")]
+        public static extern IntPtr MonitorFromWindow(IntPtr handle, int flags);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MINMAXINFO
         {
-            _soundManager.UpdateSettings(settings);
-            System.Diagnostics.Debug.WriteLine("音效管理器设置已更新");
+            public POINT ptReserved;
+            public POINT ptMaxSize;
+            public POINT ptMaxPosition;
+            public POINT ptMinTrackSize;
+            public POINT ptMaxTrackSize;
         }
-        else
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
         {
-            System.Diagnostics.Debug.WriteLine("音效管理器为空，无法更新设置");
-        }
-    }
-    
-    /// <summary>
-    /// 保存音效设置到配置文件
-    /// </summary>
-    private void SaveSoundSettings()
-    {
-        try
-        {
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds.json");
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(_soundSettings, options);
-            File.WriteAllText(configPath, json);
-            System.Diagnostics.Debug.WriteLine($"音效设置已保存到: {configPath}");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"保存音效设置失败: {ex.Message}");
-        }
-    }
-    
-    /// <summary>
-    /// 从配置文件加载音效设置
-    /// </summary>
-    private void LoadSoundSettings()
-    {
-        try
-        {
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sounds.json");
-            if (File.Exists(configPath))
+            public int X;
+            public int Y;
+
+            public POINT(int x, int y)
             {
-                string json = File.ReadAllText(configPath);
-                var settings = JsonSerializer.Deserialize<SoundSettings>(json);
-                if (settings != null)
-                {
-                    _soundSettings = settings;
-                    System.Diagnostics.Debug.WriteLine($"音效设置已从 {configPath} 加载");
-                }
+                X = x;
+                Y = y;
             }
         }
-        catch (Exception ex)
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
         {
-            System.Diagnostics.Debug.WriteLine($"加载音效设置失败: {ex.Message}");
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public int dwFlags;
         }
     }
 }

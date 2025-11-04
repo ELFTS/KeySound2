@@ -1,0 +1,28 @@
+<UserControl x:Class="KeySound2.Components.VirtualKeyboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 功能说明 -->
+            <TextBlock Grid.Row="0" 
+                       Text="点击下方虚拟键盘按键，然后选择对应的音效文件" 
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Margin="0,0,0,10"/>
+
+            <!-- 虚拟键盘 -->
+            <Grid Grid.Row="1" x:Name="KeyboardGrid">
+                <!-- 键盘按键将在这里动态生成 -->
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
